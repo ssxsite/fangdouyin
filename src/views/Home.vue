@@ -17,14 +17,21 @@
                     poster：封面
                     src：播放地址
                     -->
-                        <video class="video_box" loop webkit-playsinline="true" x5-video-player-type="h5-page"
-                               x5-video-player-fullscreen="true" playsinline preload="auto"
-                               :poster="item.cover" :src="item.url" :playOrPause="playOrPause"
-                               @click="pauseVideo" @ended="onPlayerEnded($event)"
-                        >
+<!--                        <video class="video_box" webkit-playsinline="true" x5-video-player-type="h5-page"-->
+<!--                               x5-video-player-fullscreen="true" playsinline preload="auto"-->
+<!--                               :poster="item.cover" :src="item.url" :playOrPause="playOrPause"-->
+<!--                               @click="pauseVideo" @ended="onPlayerEnded($event)"-->
+<!--                        >-->
+<!--                        </video>-->
+
+                        <video controls="controls" preload="auto" :poster="item.cover" x5-video-player-fullscreen="true"
+                               webkit-playsinline="true" x-webkit-airplay="true" playsinline="true" x5-playsinline
+                               class="video_box" :src="item.url" @click="pauseVideo" @ended="onPlayerEnded($event)">  
+<!--                            <source src="item.url"  type="video/mp4"/> -->
                         </video>
+
                         <!-- 封面 -->
-                        <img v-show="isVideoShow" class="play" @click="playvideo" :src="item.cover"/>
+                        <!--                        <img v-show="isVideoShow" class="play" @click="playvideo" :src="item.cover"/>-->
                         <!-- 播放暂停按钮 -->
                         <img v-show="iconPlayShow" class="icon_play" @click="playvideo"
                              src="http://npjy.oss-cn-beijing.aliyuncs.com/images/file-1575340653940esdHR.png"/>
@@ -64,18 +71,18 @@
                 </van-swipe-item>
             </van-swipe>
             <!--底部操作栏-->
-            <div class="container_bottom">
-                <div class="border_progress" :style="'width:'+videoProcess+'%'"></div>
-                <div class="bottom_tab" :class="tabIndex==0?'tab_active':''" @click="changeTab(0)">
-                    <span class="bottom_tab_span ">首页</span>
-                </div>
-                <div class="bottom_tab" :class="tabIndex==1?'tab_active':''" @click="changeTab(1)">
-                    <img src="http://oss.jishiyoo.com/images/file-1575427746903.png" alt="" class="bottom_tab_icon">
-                </div>
-                <div class="bottom_tab" :class="tabIndex==2?'tab_active':''" @click="changeTab(2)">
-                    <span class="bottom_tab_span">我的</span>
-                </div>
-            </div>
+<!--            <div class="container_bottom">-->
+<!--                <div class="border_progress" :style="'width:'+videoProcess+'%'"></div>-->
+<!--                                <div class="bottom_tab" :class="tabIndex==0?'tab_active':''" @click="changeTab(0)">-->
+<!--                                    <span class="bottom_tab_span ">首页</span>-->
+<!--                                </div>-->
+<!--                                <div class="bottom_tab" :class="tabIndex==1?'tab_active':''" @click="changeTab(1)">-->
+<!--                                    <img src="http://oss.jishiyoo.com/images/file-1575427746903.png" alt="" class="bottom_tab_icon">-->
+<!--                                </div>-->
+<!--                                <div class="bottom_tab" :class="tabIndex==2?'tab_active':''" @click="changeTab(2)">-->
+<!--                                    <span class="bottom_tab_span">我的</span>-->
+<!--                                </div>-->
+<!--            </div>-->
             <!--分享弹框-->
             <div class="share_box" :class="showShareBox?'share_active':''">
                 <div class="share_tips">分享到</div>
@@ -176,409 +183,451 @@
     </div>
 </template>
 <script>
-  import Vue from "vue";
-  import {
-    Swipe,
-    SwipeItem,
-    Toast
-  } from "vant";
-  // 引入微信分享
-  import wx from "weixin-js-sdk";
+    import Vue from "vue";
+    import {
+        Swipe,
+        SwipeItem,
+        Toast
+    } from "vant";
+    // 引入微信分享
+    import wx from "weixin-js-sdk";
 
-  Vue.use(Swipe, Toast).use(SwipeItem);
+    Vue.use(Swipe, Toast).use(SwipeItem);
 
-  let videoProcessInterval;
-  export default {
-    name: "home",
-    data() {
-      let u = navigator.userAgent;
-      return {
-        current: 0,
-        videoList: [{
-          url: "http://video.jishiyoo.com/3720932b9b474f51a4cf79f245325118/913d4790b8f046bfa1c9a966cd75099f-8ef4af9b34003bd0bc0261cda372521f-ld.mp4",//视频源
-          cover: "http://oss.jishiyoo.com/images/file-1575341210559.png",//封面
-          tag_image: "http://npjy.oss-cn-beijing.aliyuncs.com/images/file-1575449277018pF3XL.jpg",//作者头像
-          fabulous: false,//是否赞过
-          tagFollow: false,//是否关注过该作者
-          author_id: 1,//作者ID
-          author: "superKM",
-          des: "武汉加油"
-        }, {
-          url: "http://video.jishiyoo.com/1eedc49bba7b4eaebe000e3721149807/d5ab221b92c74af8976bd3c1473bfbe2-4518fe288016ee98c8783733da0e2da4-ld.mp4",
-          cover: "http://oss.jishiyoo.com/images/file-1575343195934.jpg",
-          tag_image: "http://npjy.oss-cn-beijing.aliyuncs.com/images/file-1575449298299M3V50.jpg",
-          fabulous: true,//是否赞过
-          tagFollow: false,//是否关注过该作者
-          author_id: 2,//作者ID
-          author: "superKM",
-          des: "中国加油"
-        }, {
-          url: "http://video.jishiyoo.com/161b9562c780479c95bbdec1a9fbebcc/8d63913b46634b069e13188b03073c09-d25c062412ee3c4a0758b1c48fc8c642-ld.mp4",
-          cover: "http://oss.jishiyoo.com/images/file-1575343262684.jpg",
-          tag_image: "http://npjy.oss-cn-beijing.aliyuncs.com/images/file-1575449277018pF3XL.jpg",
-          fabulous: false,//是否赞过
-          tagFollow: false,//是否关注过该作者
-          author_id: 1,//作者ID
-          author: "superKM",
-          des: "武汉加油"
-        }, {
-          url: "http://video.jishiyoo.com/549ed372c9d14b029bfb0512ba879055/8e2dc540573d496cb0942273c4a4c78c-15844fe70971f715c01d57c0c6595f45-ld.mp4",
-          cover: "http://oss.jishiyoo.com/images/file-1575343508574.jpg",
-          tag_image: "http://npjy.oss-cn-beijing.aliyuncs.com/images/file-1575449277018pF3XL.jpg",
-          fabulous: false,//是否赞过
-          tagFollow: false,//是否关注过该作者
-          author_id: 1,//作者ID
-          author: "superKM",
-          des: "中国加油"
-        }],
-        isVideoShow: true,
-        playOrPause: true,
-        video: null,
-        iconPlayShow: true,
-        isAndroid: u.indexOf("Android") > -1 || u.indexOf("Adr") > -1, // android终端
-        isiOS: !!u.match(/\(i[^;]+;( U;)? CPU.+Mac OS X/), // ios终端
-        tabIndex: 0,
-        showShareBox: false,//展示分享框
-        commentPop: false,//是否展示评论弹框
-        // 评论相关
-        comment_text: "",//评论输入内容
-        canSend: false,//是否可以发送
-        videoComment: [],
-        commentPlaceholder: "留下你精彩的评论吧",//评论Placeholder
-        replayUserData: "",
-        to_comment_id: "",
-        videoProcess: 0//视频播放进度
-      };
-    },
-    watch: {
-      //监听输入变化
-      comment_text(newV, oldV) {
-        newV == "" ? this.canSend = false : this.canSend = true;
-      }
-    },
-    mounted() {
-      wx.config({
-        debug: false,
-        appId: "111",
-        timestamp: "111",
-        nonceStr: "111",
-        signature: "111",
-        jsApiList: []
-      });
-    },
-    methods: {
-      //获取评论
-      getComment() {
-        //setTimeout模拟Ajax请求
-        setTimeout(() => {
-          let data = [{
-            "comment_id": 297,
-            "p_id": 0,
-            "comment_content": "你好，我叫蓝湛",
-            "love_count": 0,
-            "create_time": "1月前",
-            "user_id": 78634,
-            "nickname": "蓝忘机\uD83C\uDF1F",
-            "avatar": "http://npjy.oss-cn-beijing.aliyuncs.com/images/file-1575449277018pF3XL.jpg",
-            "be_commented_user_id": 0,
-            "be_commented_nickname": "",
-            "be_commented_avatar": "",
-            "child_comment": [{
-              "comment_id": 298,
-              "p_id": 296,
-              "comment_content": "蓝二公子，今天天气不错",
-              "love_count": 1,
-              "create_time": "7天前",
-              "user_id": 55163,
-              "nickname": "魏婴",
-              "avatar": "http://thirdwx.qlogo.cn/mmopen/vi_32/Q0j4TwGTfTKPJb1k8zia02PjVibdaDJ83JIDGm0hIsY34kAlXyZMT6FMBibdw6rhdPPjpxtp6d8B75x5Kpicxp2gqw/132",
-              "be_commented_user_id": 78480,
-              "be_commented_nickname": "chenchen",
-              "be_commented_avatar": "http://thirdwx.qlogo.cn/mmopen/vi_32/icxHc0Ym1p4hQAFAUnjpxDPMkEUyojnibBj9wUSS2OmibiazdBAicSLpoicricVYP6QG6XicjTzQPx9koMPqcGfhTOy5qA/132",
-              "love_comment": true
-            }],
-            "love_comment": false
-          }, {
-            "comment_id": 281,
-            "p_id": 0,
-            "comment_content": "楼主好帅，我要嫁给你！！",
-            "love_count": 0,
-            "create_time": "1月前",
-            "user_id": 74164,
-            "nickname": "冰雪奇缘2",
-            "avatar": "http://npjy.oss-cn-beijing.aliyuncs.com/images/file-1575449298299M3V50.jpg",
-            "be_commented_user_id": 0,
-            "be_commented_nickname": "",
-            "be_commented_avatar": "",
-            "child_comment": [],
-            "love_comment": false
-          }];//获取评论数据
-          this.videoComment = [...this.videoComment, ...data];
-          let to_comment_id = this.to_comment_id;
-          if (to_comment_id != 0) {
-            //从评论列表进来回复
-            this.getCommentDetail(to_comment_id);
-          }
-        }, 500);
-      },
-      //获取单个评论
-      getCommentDetail(to_comment_id) {
-        let obj = {
-          action: "show_comment_info",
-          comment_id: to_comment_id
-        };
-        setTimeout(() => {
-          let index;
-          let item = res.data;
-          this.videoComment.map((v, i) => {
-            v.child_comment.map((v2, i2) => {
-              if (v2.comment_id == to_comment_id) {
-                index = i;
-              }
+    let videoProcessInterval;
+    export default {
+        name: "home",
+        data() {
+            let u = navigator.userAgent;
+            return {
+                current: 0,
+                videoList: [{
+                    url: "http://video.jishiyoo.com/3720932b9b474f51a4cf79f245325118/913d4790b8f046bfa1c9a966cd75099f-8ef4af9b34003bd0bc0261cda372521f-ld.mp4",//视频源
+                    cover: "http://oss.jishiyoo.com/images/file-1575341210559.png",//封面
+                    tag_image: "http://npjy.oss-cn-beijing.aliyuncs.com/images/file-1575449277018pF3XL.jpg",//作者头像
+                    fabulous: false,//是否赞过
+                    tagFollow: false,//是否关注过该作者
+                    author_id: 1,//作者ID
+                    author: "superKM",
+                    des: "武汉加油"
+                }, {
+                    url: "http://video.jishiyoo.com/1eedc49bba7b4eaebe000e3721149807/d5ab221b92c74af8976bd3c1473bfbe2-4518fe288016ee98c8783733da0e2da4-ld.mp4",
+                    cover: "http://oss.jishiyoo.com/images/file-1575343195934.jpg",
+                    tag_image: "http://npjy.oss-cn-beijing.aliyuncs.com/images/file-1575449298299M3V50.jpg",
+                    fabulous: true,//是否赞过
+                    tagFollow: false,//是否关注过该作者
+                    author_id: 2,//作者ID
+                    author: "superKM",
+                    des: "中国加油"
+                }, {
+                    url: "http://video.jishiyoo.com/161b9562c780479c95bbdec1a9fbebcc/8d63913b46634b069e13188b03073c09-d25c062412ee3c4a0758b1c48fc8c642-ld.mp4",
+                    cover: "http://oss.jishiyoo.com/images/file-1575343262684.jpg",
+                    tag_image: "http://npjy.oss-cn-beijing.aliyuncs.com/images/file-1575449277018pF3XL.jpg",
+                    fabulous: false,//是否赞过
+                    tagFollow: false,//是否关注过该作者
+                    author_id: 1,//作者ID
+                    author: "superKM",
+                    des: "武汉加油"
+                }, {
+                    url: "http://video.jishiyoo.com/549ed372c9d14b029bfb0512ba879055/8e2dc540573d496cb0942273c4a4c78c-15844fe70971f715c01d57c0c6595f45-ld.mp4",
+                    cover: "http://oss.jishiyoo.com/images/file-1575343508574.jpg",
+                    tag_image: "http://npjy.oss-cn-beijing.aliyuncs.com/images/file-1575449277018pF3XL.jpg",
+                    fabulous: false,//是否赞过
+                    tagFollow: false,//是否关注过该作者
+                    author_id: 1,//作者ID
+                    author: "superKM",
+                    des: "中国加油"
+                }],
+                isVideoShow: true,
+                playOrPause: true,
+                video: null,
+                iconPlayShow: true,
+                isAndroid: u.indexOf("Android") > -1 || u.indexOf("Adr") > -1, // android终端
+                isiOS: !!u.match(/\(i[^;]+;( U;)? CPU.+Mac OS X/), // ios终端
+                tabIndex: 0,
+                showShareBox: false,//展示分享框
+                commentPop: false,//是否展示评论弹框
+                // 评论相关
+                comment_text: "",//评论输入内容
+                canSend: false,//是否可以发送
+                videoComment: [],
+                commentPlaceholder: "留下你精彩的评论吧",//评论Placeholder
+                replayUserData: "",
+                to_comment_id: "",
+                videoProcess: 0//视频播放进度
+            };
+        },
+        watch: {
+            //监听输入变化
+            comment_text(newV, oldV) {
+                newV == "" ? this.canSend = false : this.canSend = true;
+            }
+        },
+        mounted() {
+            wx.config({
+                debug: false,
+                appId: "111",
+                timestamp: "111",
+                nonceStr: "111",
+                signature: "111",
+                jsApiList: []
             });
-          });
-          setTimeout(() => {
-            //对评论重新排序，存在to_comment_id的时候排至第一个
-            let firstComment = this.videoComment.splice(index, 1);
-            this.videoComment.unshift(firstComment[0]);
-            //重设回复人
-            item.index = 0;
-            item.index2 = 0;
-            this.replayUserData = item;
-            this.commentPlaceholder = `回复 @${item.nickname}：`;
-            this.$refs.content.focus();
-          }, 10);
-        }, 500);
-      },
-      //检测评论内容
-      checkComment() {
-        if (this.comment_text == "") {
-          Toast("评论内容不能为空");
-        } else {
-          let comment_id = 0, p_id = "", p_user_id = "", content = this.comment_text;
-          if (this.replayUserData != "") {
-            comment_id = this.replayUserData.comment_id;
-            p_id = this.replayUserData.p_id;
-            p_user_id = this.replayUserData.user_id;
-          }
-          this.sendComment(comment_id, p_id, p_user_id, content);
+        },
+        methods: {
+            //获取评论
+            getComment() {
+                //setTimeout模拟Ajax请求
+                setTimeout(() => {
+                    let data = [{
+                        "comment_id": 297,
+                        "p_id": 0,
+                        "comment_content": "你好，我叫蓝湛",
+                        "love_count": 0,
+                        "create_time": "1月前",
+                        "user_id": 78634,
+                        "nickname": "蓝忘机\uD83C\uDF1F",
+                        "avatar": "http://npjy.oss-cn-beijing.aliyuncs.com/images/file-1575449277018pF3XL.jpg",
+                        "be_commented_user_id": 0,
+                        "be_commented_nickname": "",
+                        "be_commented_avatar": "",
+                        "child_comment": [{
+                            "comment_id": 298,
+                            "p_id": 296,
+                            "comment_content": "蓝二公子，今天天气不错",
+                            "love_count": 1,
+                            "create_time": "7天前",
+                            "user_id": 55163,
+                            "nickname": "魏婴",
+                            "avatar": "http://thirdwx.qlogo.cn/mmopen/vi_32/Q0j4TwGTfTKPJb1k8zia02PjVibdaDJ83JIDGm0hIsY34kAlXyZMT6FMBibdw6rhdPPjpxtp6d8B75x5Kpicxp2gqw/132",
+                            "be_commented_user_id": 78480,
+                            "be_commented_nickname": "chenchen",
+                            "be_commented_avatar": "http://thirdwx.qlogo.cn/mmopen/vi_32/icxHc0Ym1p4hQAFAUnjpxDPMkEUyojnibBj9wUSS2OmibiazdBAicSLpoicricVYP6QG6XicjTzQPx9koMPqcGfhTOy5qA/132",
+                            "love_comment": true
+                        }],
+                        "love_comment": false
+                    }, {
+                        "comment_id": 281,
+                        "p_id": 0,
+                        "comment_content": "楼主好帅，我要嫁给你！！",
+                        "love_count": 0,
+                        "create_time": "1月前",
+                        "user_id": 74164,
+                        "nickname": "冰雪奇缘2",
+                        "avatar": "http://npjy.oss-cn-beijing.aliyuncs.com/images/file-1575449298299M3V50.jpg",
+                        "be_commented_user_id": 0,
+                        "be_commented_nickname": "",
+                        "be_commented_avatar": "",
+                        "child_comment": [],
+                        "love_comment": false
+                    }];//获取评论数据
+                    this.videoComment = [...this.videoComment, ...data];
+                    let to_comment_id = this.to_comment_id;
+                    if (to_comment_id != 0) {
+                        //从评论列表进来回复
+                        this.getCommentDetail(to_comment_id);
+                    }
+                }, 500);
+            },
+            //获取单个评论
+            getCommentDetail(to_comment_id) {
+                let obj = {
+                    action: "show_comment_info",
+                    comment_id: to_comment_id
+                };
+                setTimeout(() => {
+                    let index;
+                    let item = res.data;
+                    this.videoComment.map((v, i) => {
+                        v.child_comment.map((v2, i2) => {
+                            if (v2.comment_id == to_comment_id) {
+                                index = i;
+                            }
+                        });
+                    });
+                    setTimeout(() => {
+                        //对评论重新排序，存在to_comment_id的时候排至第一个
+                        let firstComment = this.videoComment.splice(index, 1);
+                        this.videoComment.unshift(firstComment[0]);
+                        //重设回复人
+                        item.index = 0;
+                        item.index2 = 0;
+                        this.replayUserData = item;
+                        this.commentPlaceholder = `回复 @${item.nickname}：`;
+                        this.$refs.content.focus();
+                    }, 10);
+                }, 500);
+            },
+            //检测评论内容
+            checkComment() {
+                if (this.comment_text == "") {
+                    Toast("评论内容不能为空");
+                } else {
+                    let comment_id = 0, p_id = "", p_user_id = "", content = this.comment_text;
+                    if (this.replayUserData != "") {
+                        comment_id = this.replayUserData.comment_id;
+                        p_id = this.replayUserData.p_id;
+                        p_user_id = this.replayUserData.user_id;
+                    }
+                    this.sendComment(comment_id, p_id, p_user_id, content);
+                }
+            },
+            //发送评论
+            sendComment(comment_id, p_id, p_user_id, content) {
+                this.comment_text = "";
+                this.isSending = true;
+                setTimeout(() => {
+                    let newData = {
+                        "comment_id": comment_id,
+                        "p_id": p_id,
+                        "comment_content": content,
+                        "love_count": 0,
+                        "create_time": "刚刚",
+                        "user_id": p_user_id,
+                        "nickname": "游客",//当前用户
+                        "avatar": "https://profile.csdnimg.cn/B/1/E/3_ridingfish",//当前用户头像
+                        "be_commented_user_id": this.replayUserData.user_id,
+                        "be_commented_nickname": this.replayUserData.nickname
+                    };
+                    if (this.replayUserData == "") {
+                        //回复作品
+                        this.videoComment.splice(0, 0, newData);
+                    } else {
+                        let index = this.replayUserData.index;
+                        let index2 = this.replayUserData.index2;
+                        if (this.replayUserData.index2 == -1) {
+                            //回复一级人
+                            this.videoComment[index].child_comment.splice(0, 0, newData);
+                        } else {
+                            //回复二级人
+                            this.videoComment[index].child_comment.splice(index2, 0, newData);
+                        }
+                    }
+                    this.replayUserData = "";
+                    this.isSending = false;
+                }, 500);
+            },
+            //评论点赞
+            commentLove(item, index, index2) {
+                let comment_id = item.comment_id,
+                    user_id = item.user_id,
+                    love_comment = item.love_comment,
+                    love_flag = 0;//0:取消点赞；1：点赞
+                if (love_comment) {
+                    //取消点赞
+                    love_flag = 0;
+                } else {
+                    //添加点赞
+                    love_flag = 1;
+                }
+                //setTimeout模拟Ajax请求
+                setTimeout(() => {
+                    if (index2 == -1) {
+                        //点赞一级评论
+                        this.videoComment[index].love_comment = !this.videoComment[index].love_comment;
+                        if (love_flag == 1) {
+                            this.videoComment[index].love_count++;
+                        } else {
+                            this.videoComment[index].love_count--;
+                        }
+                    } else {
+                        //点赞二级评论
+                        this.videoComment[index].child_comment[index2].love_comment = !this.videoComment[index].child_comment[index2].love_comment;
+                        if (love_flag == 1) {
+                            this.videoComment[index].child_comment[index2].love_count++;
+                        } else {
+                            this.videoComment[index].child_comment[index2].love_count--;
+                        }
+                    }
+                }, 500);
+            },
+            //点击回复
+            replayUser(item, index, index2) {
+                item.index = index;
+                item.index2 = index2;
+                this.replayUserData = item;
+                this.commentPlaceholder = `回复 @${item.nickname}：`;
+                this.$refs.content.focus();
+            },
+            //弹出评论窗口
+            changeComment() {
+                this.commentPop = true;
+                this.videoComment = [];
+                this.getComment();
+            },
+            //关闭评论弹窗
+            closeComment() {
+                this.commentPop = false;
+                this.commentPlaceholder = "留下你精彩的评论吧";
+                this.replayUserData = "";
+            },
+            //关注该作者
+            checkSubscribe(item, index) {
+                this.videoList.map(v => {
+                    v.author_id == item.author_id ? v.tagFollow = true : "";
+                });
+            },
+            //改变菜单
+            changeTab(index) {
+                this.tabIndex = index;
+            },
+            //改变收藏状态
+            changeFabulous(item, index) {
+                this.videoList[index].fabulous = !this.videoList[index].fabulous;
+            },
+            //展示分享弹窗
+            changeShare() {
+                this.showShareBox = true;
+            },
+            //取消分享
+            cancelShare() {
+                this.showShareBox = false;
+            },
+            //滑动改变播放的视频
+            onChange(index) {
+                //改变的时候 暂停当前播放的视频
+                clearInterval(videoProcessInterval);
+                this.videoProcess = 0;
+                let video = document.querySelectorAll("video")[this.current];
+                video.currentTime = 0;
+                video.pause();
+                this.playOrPause = false;
+                this.showShareBox = false;
+                this.current = index;
+                //非ios切换直接自动播放下一个
+                // if (!this.isiOS) {
+                //   this.isVideoShow = false;
+                //   setTimeout(() => {
+                //     this.pauseVideo();
+                //   }, 100);
+                // } else {
+                //   //ios官方禁止video自动播放，未找到合适的方法，如果您发现了，麻烦告诉我一下谢谢啦
+                //   this.playOrPause = true;
+                //   this.iconPlayShow = true;
+                // }
+
+                this.isVideoShow = true;
+                setTimeout(() => {
+                    this.isVideoShow = false;
+                    this.pauseVideo();
+                }, 100);
+
+            },
+            // 开始播放
+            playvideo(event) {
+                let video = document.querySelectorAll("video")[this.current];
+                console.log("playvideo：" + this.current);
+                this.isVideoShow = false;
+                this.iconPlayShow = false;
+                this.showShareBox = false;
+                video.play();
+                window.onresize = function () {
+                    video.style.width = window.innerWidth + "px";
+                    video.style.height = window.innerHeight + "px";
+                };
+                videoProcessInterval = setInterval(() => {
+                    this.changeProcess(video);
+                }, 100);
+                // this.dragDuration();
+            },
+            pauseVideo() { //暂停\播放
+                try {
+                    let video = document.querySelectorAll("video")[this.current];
+                    console.log("pauseVideo" + this.current);
+                    if (this.playOrPause) {
+                        video.pause();
+                        this.iconPlayShow = true;
+                        clearInterval(videoProcessInterval);
+                    } else {
+                        // wx.ready(() => {
+                        //     // 在微信的ready中进行播放 不管成功配置与否 都会执行ready
+                        //     video.play();
+                        // })
+                        video.play();
+                        video.pause();
+                        setTimeout(() => {
+                            video.play();
+                            this.iconPlayShow = false;
+                            videoProcessInterval = setInterval(() => {
+                                this.changeProcess(video);
+                            }, 100);
+                        }, 100);
+                    }
+                    this.playOrPause = !this.playOrPause;
+                    this.showShareBox = false;
+                } catch (e) {
+                    alert(e);
+                }
+
+
+            },
+            //记录播放进度
+            changeProcess() {
+                let video = document.querySelectorAll("video")[this.current];
+                let currentTime = video.currentTime.toFixed(1);
+                let duration = video.duration.toFixed(1);
+                this.videoProcess = parseInt((currentTime / duration).toFixed(2) * 100);
+            },
+            onPlayerEnded(player) { //视频结束
+                this.isVideoShow = true;
+                this.current += this.current;
+            },
+            //复制当前链接
+            copyUrl() {
+                let httpUrl = window.location.href;
+                var oInput = document.createElement("input");
+                oInput.value = httpUrl;
+                document.body.appendChild(oInput);
+                oInput.select(); // 选择对象
+                document.execCommand("Copy"); // 执行浏览器复制命令
+                oInput.className = "oInput";
+                oInput.style.display = "none";
+                alert("链接复制成功");
+            },
+            //进度条拖动实现
+            dragDuration(){
+                let durationIcon = document.querySelector('.duration-icon');
+                let progress = document.querySelector('.progress');
+                let duration = document.querySelector('.border_progress');
+                let video = document.querySelectorAll("video")[this.current];
+                let cirW = durationIcon.offsetWidth/2;
+                let oL = 0;
+                let rate = 0;
+                let total_time = video.duration;
+                durationIcon.addEventListener('touchstart',function(e){
+                    let ev = e || window.event;
+                    let touch = ev.targetTouches[0];
+                    oL = touch.clientX - durationIcon.offsetLeft - progress.offsetLeft;//鼠标相对于拖拽圆点的偏移距离
+                });
+                durationIcon.addEventListener('touchmove',function(e){
+                    e.preventDefault();
+                    let ev = e || window.event;
+                    let touch = ev.targetTouches[0];
+                    let oLeft = touch.clientX - progress.offsetLeft - oL ; //滑块最左端距离父元素最左端的距离
+                    let durationWidth = oLeft + cirW;
+                    //拖动边界检测
+                    if((oLeft - progress.offsetWidth + 16) > 0){
+                        oLeft = -cirW;
+                        durationWidth = 0;
+                    }else if(oLeft>progress.offsetWidth- cirW){
+                        oLeft = progress.offsetWidth - cirW;
+                        durationWidth = progress.offsetWidth;
+                    }
+                    //拖动实时改变进度条
+                    durationIcon.style.left = oLeft + 'px';
+                    duration.style.width = durationWidth + 'px';
+                    rate = durationWidth/progress.offsetWidth * 100;
+                    // console.log('(rate * total_time) / 100',(rate * total_time) / 100);
+                    video.currentTime = (rate * total_time) / 100;
+                })
+            },
+            //获取视频时长
         }
-      },
-      //发送评论
-      sendComment(comment_id, p_id, p_user_id, content) {
-        this.comment_text = "";
-        this.isSending = true;
-        setTimeout(() => {
-          let newData = {
-            "comment_id": comment_id,
-            "p_id": p_id,
-            "comment_content": content,
-            "love_count": 0,
-            "create_time": "刚刚",
-            "user_id": p_user_id,
-            "nickname": "游客",//当前用户
-            "avatar": "https://profile.csdnimg.cn/B/1/E/3_ridingfish",//当前用户头像
-            "be_commented_user_id": this.replayUserData.user_id,
-            "be_commented_nickname": this.replayUserData.nickname
-          };
-          if (this.replayUserData == "") {
-            //回复作品
-            this.videoComment.splice(0, 0, newData);
-          } else {
-            let index = this.replayUserData.index;
-            let index2 = this.replayUserData.index2;
-            if (this.replayUserData.index2 == -1) {
-              //回复一级人
-              this.videoComment[index].child_comment.splice(0, 0, newData);
-            } else {
-              //回复二级人
-              this.videoComment[index].child_comment.splice(index2, 0, newData);
-            }
-          }
-          this.replayUserData = "";
-          this.isSending = false;
-        }, 500);
-      },
-      //评论点赞
-      commentLove(item, index, index2) {
-        let comment_id = item.comment_id,
-          user_id = item.user_id,
-          love_comment = item.love_comment,
-          love_flag = 0;//0:取消点赞；1：点赞
-        if (love_comment) {
-          //取消点赞
-          love_flag = 0;
-        } else {
-          //添加点赞
-          love_flag = 1;
-        }
-        //setTimeout模拟Ajax请求
-        setTimeout(() => {
-          if (index2 == -1) {
-            //点赞一级评论
-            this.videoComment[index].love_comment = !this.videoComment[index].love_comment;
-            if (love_flag == 1) {
-              this.videoComment[index].love_count++;
-            } else {
-              this.videoComment[index].love_count--;
-            }
-          } else {
-            //点赞二级评论
-            this.videoComment[index].child_comment[index2].love_comment = !this.videoComment[index].child_comment[index2].love_comment;
-            if (love_flag == 1) {
-              this.videoComment[index].child_comment[index2].love_count++;
-            } else {
-              this.videoComment[index].child_comment[index2].love_count--;
-            }
-          }
-        }, 500);
-      },
-      //点击回复
-      replayUser(item, index, index2) {
-        item.index = index;
-        item.index2 = index2;
-        this.replayUserData = item;
-        this.commentPlaceholder = `回复 @${item.nickname}：`;
-        this.$refs.content.focus();
-      },
-      //弹出评论窗口
-      changeComment() {
-        this.commentPop = true;
-        this.videoComment = [];
-        this.getComment();
-      },
-      //关闭评论弹窗
-      closeComment() {
-        this.commentPop = false;
-        this.commentPlaceholder = "留下你精彩的评论吧";
-        this.replayUserData = "";
-      },
-      //关注该作者
-      checkSubscribe(item, index) {
-        this.videoList.map(v => {
-          v.author_id == item.author_id ? v.tagFollow = true : "";
-        });
-      },
-      //改变菜单
-      changeTab(index) {
-        this.tabIndex = index;
-      },
-      //改变收藏状态
-      changeFabulous(item, index) {
-        this.videoList[index].fabulous = !this.videoList[index].fabulous;
-      },
-      //展示分享弹窗
-      changeShare() {
-        this.showShareBox = true;
-      },
-      //取消分享
-      cancelShare() {
-        this.showShareBox = false;
-      },
-      //滑动改变播放的视频
-      onChange(index) {
-        //改变的时候 暂停当前播放的视频
-        clearInterval(videoProcessInterval);
-        this.videoProcess = 0;
-        let video = document.querySelectorAll("video")[this.current];
-        video.currentTime = 0;
-        video.pause();
-        this.playOrPause = false;
-        this.showShareBox = false;
-        this.current = index;
-        //非ios切换直接自动播放下一个
-        // if (!this.isiOS) {
-        //   this.isVideoShow = false;
-        //   setTimeout(() => {
-        //     this.pauseVideo();
-        //   }, 100);
-        // } else {
-        //   //ios官方禁止video自动播放，未找到合适的方法，如果您发现了，麻烦告诉我一下谢谢啦
-        //   this.playOrPause = true;
-        //   this.iconPlayShow = true;
-        // }
-
-        this.isVideoShow = true;
-        setTimeout(() => {
-          this.isVideoShow = false;
-          this.pauseVideo();
-        }, 100);
-
-      },
-      // 开始播放
-      playvideo(event) {
-        let video = document.querySelectorAll("video")[this.current];
-        console.log("playvideo：" + this.current);
-        this.isVideoShow = false;
-        this.iconPlayShow = false;
-        this.showShareBox = false;
-        video.play();
-        window.onresize = function() {
-          video.style.width = window.innerWidth + "px";
-          video.style.height = window.innerHeight + "px";
-        };
-        videoProcessInterval = setInterval(() => {
-          this.changeProcess(video);
-        }, 100);
-      },
-      pauseVideo() { //暂停\播放
-        try {
-          let video = document.querySelectorAll("video")[this.current];
-          console.log("pauseVideo" + this.current);
-          if (this.playOrPause) {
-            video.pause();
-            this.iconPlayShow = true;
-            clearInterval(videoProcessInterval);
-          } else {
-            // wx.ready(() => {
-            //     // 在微信的ready中进行播放 不管成功配置与否 都会执行ready
-            //     video.play();
-            // })
-            video.play();
-            video.pause();
-            setTimeout(() => {
-              video.play();
-              this.iconPlayShow = false;
-              videoProcessInterval = setInterval(() => {
-                this.changeProcess(video);
-              }, 100);
-            }, 100);
-          }
-          this.playOrPause = !this.playOrPause;
-          this.showShareBox = false;
-        } catch (e) {
-          alert(e);
-        }
-
-
-      },
-      //记录播放进度
-      changeProcess() {
-        let video = document.querySelectorAll("video")[this.current];
-        let currentTime = video.currentTime.toFixed(1);
-        let duration = video.duration.toFixed(1);
-        this.videoProcess = parseInt((currentTime / duration).toFixed(2) * 100);
-      },
-      onPlayerEnded(player) { //视频结束
-        this.isVideoShow = true;
-        this.current += this.current;
-      },
-      //复制当前链接
-      copyUrl() {
-        let httpUrl = window.location.href;
-        var oInput = document.createElement("input");
-        oInput.value = httpUrl;
-        document.body.appendChild(oInput);
-        oInput.select(); // 选择对象
-        document.execCommand("Copy"); // 执行浏览器复制命令
-        oInput.className = "oInput";
-        oInput.style.display = "none";
-        alert("链接复制成功");
-      }
-    }
-  };
+    };
 </script>
-<style scoped>
+<style lang="css" scoped>
+    video::-webkit-media-controls-enclosure {
+        display: none !important;
+    }
     .clear {
         clear: both;
     }
@@ -780,14 +829,14 @@
         width: 100%;
         left: 0;
         box-sizing: border-box;
-        background: -webkit-linear-gradient(top, rgba(0, 0, 0, 0.2), rgba(0, 0, 0, 0));
-        /* Safari 5.1 - 6.0 */
-        background: -o-linear-gradient(top, rgba(0, 0, 0, 0.2), rgba(0, 0, 0, 0));
-        /* Opera 11.1 - 12.0 */
-        background: -moz-linear-gradient(top, rgba(0, 0, 0, 0.2), rgba(0, 0, 0, 0));
-        /* Firefox 3.6 - 15 */
-        background: linear-gradient(to top, rgba(0, 0, 0, 0.2), rgba(0, 0, 0, 0));
-        /* 标准的语法 */
+        /*background: -webkit-linear-gradient(top, rgba(0, 0, 0, 0.2), rgba(0, 0, 0, 0));*/
+        /*!* Safari 5.1 - 6.0 *!*/
+        /*background: -o-linear-gradient(top, rgba(0, 0, 0, 0.2), rgba(0, 0, 0, 0));*/
+        /*!* Opera 11.1 - 12.0 *!*/
+        /*background: -moz-linear-gradient(top, rgba(0, 0, 0, 0.2), rgba(0, 0, 0, 0));*/
+        /*!* Firefox 3.6 - 15 *!*/
+        /*background: linear-gradient(to top, rgba(0, 0, 0, 0.2), rgba(0, 0, 0, 0));*/
+        /*!* 标准的语法 *!*/
     }
 
     .production_name {
@@ -810,7 +859,7 @@
         position: fixed;
         bottom: 0;
         width: 100%;
-        background: rgba(0, 0, 0, 0.85);
+        /*background: rgba(0, 0, 0, 0.85);*/
         height: 48px;
         /*border-top: 1px solid rgba(255, 255, 255, 0.7);*/
         max-width: 550px;
